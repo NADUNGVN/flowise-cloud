@@ -1,7 +1,7 @@
 #!/bin/sh
+# Tạo thư mục log hợp lệ và chỉ định đúng biến môi trường
+mkdir -p /opt/render/.flowise/logs
+export LOG_PATH=/opt/render/.flowise/logs
 
-# Tạo thư mục log Flowise cần
-mkdir -p /var/data/logs
-
-# Khởi chạy Flowise đúng cách qua npx
-exec npx flowise start
+# Khởi chạy Flowise đúng cách
+exec npx flowise start --PORT=3000
