@@ -1,30 +1,25 @@
-# Stage 1: Build source
+# Stage 1: Build stage
 FROM node:20-alpine AS build
 
 USER root
+
+# Skip downloading Chrome for Puppeteer (saves build time)
 ENV PUPPETEER_SKIP_DOWNLOAD=true
 
-WORKDIR /usr/src
+# Install latest Flowise globally (specific version can be set: flowise@1.0.0)
+RUN npm install -g flowise
 
-RUN apk add --no-cache git
-RUN git clone https://github.com/FlowiseAI/Flowise.git .
-
-RUN npm install -g pnpm
-RUN pnpm install
-RUN pnpm build
-
-# Stage 2: Runtime
+# Stage 2: Runtime stage
 FROM node:20-alpine
 
-RUN apk add --no-cache chromium python3 py3-pip make g++ build-base cairo-dev pango-dev curl
+# Install runtime dependencies
+RUN apk add --no-cache chromium git python3 py3-pip make g++ build-base cairo-dev pango-dev curl
 
+# Set the environment variable for Puppeteer to find Chromium
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
 
-WORKDIR /app
+# Copy Flowise from the build stage
+COPY --from=build /usr/local/lib/node_modules /usr/local/lib/node_modules
+COPY --from=build /usr/local/bin /usr/local/bin
 
-COPY --from=build /usr/src /app
-
-COPY docker/entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
-
-ENTRYPOINT ["/entrypoint.sh"]
+ENTRYPOINT ["flowise", "start"]
