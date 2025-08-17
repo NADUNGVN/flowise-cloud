@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Tạo thư mục log nếu chưa có
+# Tạo thư mục log
 mkdir -p /var/data/logs
 export FLOWISE_LOG_PATH=/var/data/logs
 
